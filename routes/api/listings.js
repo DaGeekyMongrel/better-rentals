@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const fs = require('fs');
-const { paths } = require('../../config');
+const paths = require('../../config/paths');
 
 router.get('/', (req, res) => {
   fs.readFile(paths.listingsJSON, (err, data) => {
