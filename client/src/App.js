@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
 import axios from 'axios';
+
+import Map from './components/Map';
 
 function App() {
   const [listings, setListings] = useState([]);
@@ -13,16 +13,25 @@ function App() {
         setListings(res.data);
       })
       .catch((err) => console.error(err));
-  });
+  }, []);
+
+  const onMapLoad = (map) => {
+    const { Marker } = window.google.maps;
+    const markers = listings.map(
+      ({ lat, lng, address }) =>
+        new Marker({ position: { lat, lng }, map: map, title: address })
+    );
+  };
+
+  const options = {
+    center: { lat: 47.49801, lng: 19.03991 },
+    zoom: 12,
+  };
 
   return (
     <div className="App">
       {listings.length > 0 && (
-        <ul className="listings">
-          {listings.map((lstng, index) => (
-            <li key={index}>Address: {lstng.address}</li>
-          ))}
-        </ul>
+        <Map id="myMap" options={options} onMapLoad={onMapLoad} />
       )}
     </div>
   );
