@@ -1,21 +1,15 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useEffect } from 'react';
+import { connect } from 'react-redux';
 
 import GMap from './GMap';
+import { getListings } from '../../actions/listingsActions';
 
 const getPosition = ({ lat, lng }) => ({ lat, lng });
 
-function Map() {
-  const [listings, setListings] = useState([]);
-
+function Map({ listings, loading, getListings }) {
   useEffect(() => {
-    axios
-      .get('/api/listings')
-      .then((res) => {
-        setListings(res.data);
-      })
-      .catch((err) => console.error(err));
-  }, []);
+    getListings();
+  }, [getListings]);
 
   const onMapLoad = (map) => {
     const { Marker, LatLngBounds } = window.google.maps;
@@ -35,11 +29,16 @@ function Map() {
 
   return (
     <div className="map-wrapper">
-      {listings.length > 0 && (
+      {loading === false && (
         <GMap id="myMap" options={options} onMapLoad={onMapLoad} />
       )}
     </div>
   );
 }
 
-export default Map;
+const mapStateToProps = (state) => ({
+  listings: state.listings.listings,
+  loading: state.listings.loading,
+});
+
+export default connect(mapStateToProps, { getListings })(Map);
