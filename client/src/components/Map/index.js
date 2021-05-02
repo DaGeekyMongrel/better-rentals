@@ -1,38 +1,45 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-export default function Map(props) {
-  const onScriptLoad = () => {
-    const map = new window.google.maps.Map(
-      document.getElementById(props.id),
-      props.options
-    );
-    props.onMapLoad(map);
-  };
+import GMap from './GMap';
+
+const getPosition = ({ lat, lng }) => ({ lat, lng });
+
+function Map() {
+  const [listings, setListings] = useState([]);
 
   useEffect(() => {
-    if (!window.google) {
-      var s = document.createElement('script');
-      s.type = 'text/javascript';
-      s.src = `https://maps.google.com/maps/api/js?key=${process.env.REACT_APP_GMAPS_KEY}`;
-      var x = document.getElementsByTagName('script')[0];
-      x.parentNode.insertBefore(s, x);
-      // Below is important.
-      //We cannot access google.maps until it's finished loading
-      s.addEventListener('load', (e) => {
-        onScriptLoad();
-      });
-    } else {
-      onScriptLoad();
-    }
+    axios
+      .get('/api/listings')
+      .then((res) => {
+        setListings(res.data);
+      })
+      .catch((err) => console.error(err));
   }, []);
 
+  const onMapLoad = (map) => {
+    const { Marker, LatLngBounds } = window.google.maps;
+    const bounds = new LatLngBounds();
+    const markers = [];
+
+    for (let i = 0; i < listings.length; i++) {
+      const position = getPosition(listings[i]);
+      markers.push(new Marker({ position, map, title: listings[i].address }));
+      bounds.extend(position);
+    }
+
+    map.fitBounds(bounds);
+  };
+
+  const options = {};
+
   return (
-    <div
-      style={{
-        width: '100%',
-        height: '100vh',
-      }}
-      id={props.id}
-    />
+    <div className="map-wrapper">
+      {listings.length > 0 && (
+        <GMap id="myMap" options={options} onMapLoad={onMapLoad} />
+      )}
+    </div>
   );
 }
+
+export default Map;
