@@ -29,7 +29,7 @@ export default function GMap({ options, id, onMapLoad }) {
     <div
       style={{
         width: '100%',
-        height: '100vh',
+        height: '80vh',
       }}
       id={id}
     />

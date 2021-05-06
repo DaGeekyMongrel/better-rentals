@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Container } from 'react-bootstrap-v5';
 
 import GMap from './GMap';
 import { getListings } from '../../actions/listingsActions';
@@ -28,11 +29,12 @@ function Map({ listings, loading, getListings }) {
   const options = {};
 
   return (
-    <div className="map-wrapper">
+    <section className="container map-wrapper">
+      <h2>Map</h2>
       {loading === false && (
         <GMap id="myMap" options={options} onMapLoad={onMapLoad} />
       )}
-    </div>
+    </section>
   );
 }
 
